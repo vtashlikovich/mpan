@@ -1,0 +1,24 @@
+{
+  "name": "mpan-uk",
+  "version": "1.0.0",
+  "description": "Helps to parse and extract information out of MPAN for UK energy market",
+  "main": "module/index.js",
+  "types": "module/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": [
+    "mpan",
+    "uk",
+    "power",
+    "energy",
+    "parser",
+    "llfc",
+    "grid",
+    "profile",
+    "dno"
+  ],
+  "author": "Vadim Tashlikovich",
+  "license": "MIT"
+}
