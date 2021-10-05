@@ -4,6 +4,8 @@ Parsing MPAN identificator on JavaScript for UK energy market.
 ## Usage
 
 ```javascript
+const MPAN = require('mpan-uk').MPAN; // as installed npm package
+
 var mpan = new MPAN('1000071051506'); // init with 13-digit short version or 21-digit version
 mpan.longString // contains long version of Mpan
 mpan.shortString // contains short version of Mpan

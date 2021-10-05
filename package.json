@@ -8,6 +8,10 @@
     "test": "jest",
     "build": "tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vtashlikovich/mpan.git"
+  },
   "keywords": [
     "mpan",
     "uk",
