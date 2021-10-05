@@ -1,11 +1,11 @@
 {
   "name": "mpan-uk",
   "version": "1.0.0",
-  "description": "Helps to parse and extract information out of MPAN for UK energy market",
+  "description": "Helps to parse and extract information out of MPAN for UK's energy market",
   "main": "module/index.js",
   "types": "module/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "tsc"
   },
   "keywords": [
@@ -20,5 +20,8 @@
     "dno"
   ],
   "author": "Vadim Tashlikovich",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^27.2.4"
+  }
 }

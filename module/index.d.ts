@@ -1,5 +1,7 @@
 declare class MPAN {
     #private;
+    longString: string;
+    shortString: string;
     isValid: boolean;
     isShort: boolean;
     profile: string;
@@ -10,9 +12,12 @@ declare class MPAN {
     distributionOperator: string;
     identifier: string;
     checkCode: string;
-    checkDigitCalculation(checkDigit: string, mpanCore: string): boolean;
     constructor(mpanString: string);
     private parse;
+    private parseLongVersion;
+    private parseShortVersion;
     private checkIfMpanValid;
+    private fillDNOValues;
+    private validateMpanIdentifier;
 }
 export { MPAN };

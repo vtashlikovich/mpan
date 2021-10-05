@@ -1,3 +1,4 @@
+const PRIME_NUMBERS: Array<number> = [3, 5, 7, 13, 17, 19, 23, 29, 31, 37, 41, 43];
 const DISTRIBUTION_ZONES = [
     {
         "id": 10,
@@ -79,6 +80,8 @@ const DISTRIBUTION_ZONES = [
 // Meter Point Administration Number
 class MPAN {
     #mpanString: string;
+    longString: string = '';
+    shortString: string = '';
     isValid: boolean = false;
     isShort: boolean = false;
     profile: string = '';
@@ -109,44 +112,75 @@ class MPAN {
         if (this.#mpanString && this.#mpanString.trim().length > 0) {
 
             this.#mpanString = this.#mpanString.trim();
-            if (!this.checkIfMpanValid()) return;
+            this.isValid = this.checkIfMpanValid();
+            if (!this.isValid) return;
 
-            if (this.#mpanString.length == 21) {
-                this.profile = this.#mpanString.slice(0, 2);
-                this.timeCode = this.#mpanString.slice(2, 5);
-                this.llf = this.#mpanString.slice(5, 8);
-                this.distributorCode = this.#mpanString.slice(8, 10);
-                this.identifier = this.#mpanString.slice(10, 18);
-                this.checkCode = this.#mpanString.slice(18);
-            }
-            else {
-                this.isShort = true;
-                this.distributorCode = this.#mpanString.slice(0, 2);
-                this.identifier = this.#mpanString.slice(2, 10);
-                this.checkCode = this.#mpanString.slice(10);
-            }
+            this.longString = this.#mpanString.length == 21?this.#mpanString:'';
+            this.shortString = this.#mpanString.length == 21?this.#mpanString.slice(-13):this.#mpanString;
 
-            if (this.distributorCode) {
-                let distributorCodeInt: number = Number(this.distributorCode);
-                for (var i in DISTRIBUTION_ZONES) {
-                    let item = DISTRIBUTION_ZONES[i];
-                    if (item.id == distributorCodeInt) {
-                        this.distributionZone = item.name;
-                        this.distributionOperator = item.operator;
-                        break;
-                    }
-                };
-            }
+            // if all digits are in the correct format, lets perform Mpan validation using a check numbers
+            this.isValid = this.validateMpanIdentifier();
+
+            // let's parse mpan independent on the last check result
+            if (this.#mpanString.length == 21)
+                this.parseLongVersion();
+            else
+                this.parseShortVersion();
+
+            if (this.distributorCode)
+                this.fillDNOValues();
         }
     }
 
+    private parseLongVersion(): void {
+        this.profile = this.#mpanString.slice(0, 2);
+        this.timeCode = this.#mpanString.slice(2, 5);
+        this.llf = this.#mpanString.slice(5, 8);
+        this.distributorCode = this.#mpanString.slice(8, 10);
+        this.identifier = this.#mpanString.slice(10, 18);
+        this.checkCode = this.#mpanString.slice(18);
+    }
+
+    private parseShortVersion(): void {
+        this.isShort = true;
+        this.distributorCode = this.#mpanString.slice(0, 2);
+        this.identifier = this.#mpanString.slice(2, 10);
+        this.checkCode = this.#mpanString.slice(10);
+    }
+
     private checkIfMpanValid(): boolean {
-        let mpanLength = this.#mpanString.length;
-        let longRule = /[0-9]{2}[0-9]{3}[a-zA-Z0-9]{3}[0-9]{2}[0-9]{8}[0-9]{3}/g
-        let shortRule = /[0-9]{2}[0-9]{8}[0-9]{3}/g
-        this.isValid = !(mpanLength != 21 && mpanLength != 13 || mpanLength == 21 && !longRule.test(this.#mpanString) ||
+        let mpanLength: number = this.#mpanString.length;
+        let longRule: RegExp = /[0-9]{2}[0-9]{3}[a-zA-Z0-9]{3}[0-9]{2}[0-9]{8}[0-9]{3}/g
+        let shortRule: RegExp = /[0-9]{2}[0-9]{8}[0-9]{3}/g
+        return !(mpanLength != 21 && mpanLength != 13 || mpanLength == 21 && !longRule.test(this.#mpanString) ||
             mpanLength == 13 && !shortRule.test(this.#mpanString));
-        return this.isValid;
+    }
+
+    private fillDNOValues(): void {
+        let distributorCodeInt: number = Number(this.distributorCode);
+        for (var i in DISTRIBUTION_ZONES) {
+            let item = DISTRIBUTION_ZONES[i];
+            if (item.id == distributorCodeInt) {
+                this.distributionZone = item.name;
+                this.distributionOperator = item.operator;
+                break;
+            }
+        };
+    }
+
+    // special algorithm for validating short mpan format
+    private validateMpanIdentifier(): boolean {
+        if (!this.shortString || this.shortString.length != 13)
+            return false;
+
+        let checkDigit: number = Number(this.shortString.slice(-1));
+        let processedMpanPart: string = this.shortString.slice(0, -1);
+        
+        let calculatedAmount: number = 0;
+        for (var i = 0; i < processedMpanPart.length; i++)
+            calculatedAmount += Number(processedMpanPart[i]) * PRIME_NUMBERS[i];
+
+        return calculatedAmount % 11 % 10 == checkDigit;
     }
 }
 
